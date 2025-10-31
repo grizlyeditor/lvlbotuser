@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LevelUp - Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --accent-color: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --danger-color: #ff4444;
+            --success-color: #00ff88;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #111111 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .login-container {
+            background: var(--secondary-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            animation: pulseBorder 3s infinite;
+        }
+
+        @keyframes pulseBorder {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .power-badge {
+            margin-bottom: 1rem;
+        }
+
+        .power-text {
+            color: var(--accent-color);
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px var(--accent-glow);
+            background: linear-gradient(45deg, var(--accent-color), #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .glow-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-bg);
+            border: 1px solid #333333;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .glow-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .input-focus-border {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .glow-input:focus + .input-focus-border {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #00cc66;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .message {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+            border-left: 4px solid transparent;
+        }
+
+        .error {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-left-color: var(--danger-color);
+            display: block;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+            display: block;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #333333;
+        }
+
+        .login-footer p {
+            color: var(--text-secondary);
+        }
+
+        .pulse-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0;
+            animation: pulseGlow 4s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .power-text {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="pulse-glow"></div>
+        
+        <div class="login-header">
+            <div class="power-badge">
+                <span class="power-text">Pk</span>
+            </div>
+            <h1 class="logo">LevelUp</h1>
+            <p class="login-subtitle">Premium Account Management System</p>
+        </div>
+        
+        <div class="login-form">
+            <div class="input-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <input type="email" id="email" placeholder="Enter your email" class="glow-input">
+                <div class="input-focus-border"></div>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="password" placeholder="Enter your password" class="glow-input">
+                <div class="input-focus-border"></div>
+            </div>
+            
+            <div id="message" class="message"></div>
+            
+            <button id="loginBtn" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i>
+                Login to Dashboard
+            </button>
+
+            <button class="btn btn-secondary" onclick="goToAdmin()">
+                <i class="fas fa-user-shield"></i>
+                Admin Access
+            </button>
+        </div>
+
+        <div class="login-footer">
+            <p>Need help? Contact administrator</p>
+        </div>
+    </div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy0DVL0yomS3269ZYjVSUm-NZA2vXkcPs",
+            authDomain: "levelup-ee512.firebaseapp.com",
+            databaseURL: "https://levelup-ee512-default-rtdb.firebaseio.com",
+            projectId: "levelup-ee512",
+            storageBucket: "levelup-ee512.firebasestorage.app",
+            messagingSenderId: "875691337745",
+            appId: "1:875691337745:web:dfa21728a0f5e80df469b0",
+            measurementId: "G-2REVGLVP1E"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Enter key support
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+        }
+
+        function clearMessage() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Clear previous messages
+            clearMessage();
+
+            // Validation
+            if (!email || !password) {
+                showMessage('Please enter both email and password', 'error');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Show loading
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            loginBtn.classList.add('loading');
+
+            try {
+                // Firebase login
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Check user access in database
+                const userRef = database.ref('userAccess/' + user.uid);
+                const snapshot = await userRef.once('value');
+
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    const validUntil = new Date(userData.validUntil);
+                    const now = new Date();
+
+                    if (validUntil > now) {
+                        // Valid user - redirect to dashboard
+                        showMessage('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    } else {
+                        // Account expired
+                        await auth.signOut();
+                        showMessage('Your account has expired. Please contact admin.', 'error');
+                    }
+                } else {
+                    // No user data found
+                    await auth.signOut();
+                    showMessage('Account not found. Please contact admin.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Show user-friendly error messages
+                let errorMessage = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Try again later.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Check your connection.';
+                        break;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                // Reset button
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Dashboard';
+                loginBtn.classList.remove('loading');
+            }
+        }
+
+        function goToAdmin() {
+            window.location.href = 'http://localhost:5001';
+        }
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const userRef = database.ref('userAccess/' + user.uid);
+                    const snapshot = await userRef.once('value');
+                    
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        const validUntil = new Date(userData.validUntil);
+                        
+                        if (validUntil > new Date()) {
+                            // Auto-redirect if already logged in and valid
+                            window.location.href = 'index.html';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Auto-login check failed:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

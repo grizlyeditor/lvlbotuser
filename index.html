@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LevelUp Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="power-badge">
+                    <span class="power-text" contenteditable="true">Pk</span>
+                </div>
+                <h1 class="logo">LevelUp</h1>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+        <!-- Account Details Section -->
+        <section class="account-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-circle"></i>
+                Account Details
+            </h2>
+            <div class="account-box" id="accountBox">
+                <div class="account-pulse"></div>
+                <div class="account-info" id="accountInfo">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-user"></i> Name:</span>
+                            <span class="value" id="accountName">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-chart-line"></i> Level:</span>
+                            <span class="value" id="accountLevel">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-heart"></i> Likes:</span>
+                            <span class="value" id="accountLikes">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-star"></i> XP:</span>
+                            <span class="value" id="accountXP">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-trophy"></i> Rank:</span>
+                            <span class="value" id="accountRank">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label"><i class="fas fa-users"></i> Guild:</span>
+                            <span class="value" id="accountGuild">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jobs Section -->
+        <section class="jobs-section">
+            <div class="jobs-header">
+                <h2 class="section-title">
+                    <i class="fas fa-tasks"></i>
+                    New Job's
+                </h2>
+                <div class="days-counter">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>Days: <span id="daysCount">0</span></span>
+                </div>
+            </div>
+            
+            <div class="jobs-container">
+                <div class="new-job-card" id="newJobBtn">
+                    <div class="new-job-content">
+                        <i class="fas fa-plus-circle"></i>
+                        <span class="job-name">Create New Deployment</span>
+                    </div>
+                    <div class="new-job-glow"></div>
+                </div>
+                
+                <div id="jobsList" class="jobs-list">
+                    <!-- Jobs will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="activeJobs">0</span>
+                        <span class="stat-label">Active Jobs</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalXP">0</span>
+                        <span class="stat-label">Total XP Gained</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-level-up-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="levelsGained">0</span>
+                        <span class="stat-label">Levels Gained</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- New Job Modal -->
+    <div id="newJobModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-rocket"></i> Create New Deployment</h3>
+                <button class="modal-close" id="closeNewJobModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="deploymentName">
+                        <i class="fas fa-tag"></i>
+                        Deployment Name
+                    </label>
+                    <input type="text" id="deploymentName" placeholder="Enter deployment name" class="glow-input">
+                    <div class="input-focus-border"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="uid">
+                        <i class="fas fa-key"></i>
+                        UID
+                    </label>
+                    <div class="uid-input-container">
+                        <input type="text" id="uid" placeholder="Enter UID" class="glow-input">
+                        <button id="verifyUid" class="verify-btn">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <div class="input-focus-border"></div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="accessToken">
+                        <i class="fas fa-lock"></i>
+                        Access Token
+                    </label>
+                    <input type="text" id="accessToken" placeholder="Enter access token" class="glow-input">
+                    <div class="input-focus-border"></div>
+                </div>
+
+                <div class="region-selector">
+                    <label>Region:</label>
+                    <div class="region-buttons">
+                        <button class="region-btn active" data-region="BD">BD</button>
+                        <button class="region-btn" data-region="US">US</button>
+                        <button class="region-btn" data-region="EU">EU</button>
+                        <button class="region-btn" data-region="AS">AS</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelJob" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button id="createJob" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Create Job
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div id="jobDetailsModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container large">
+            <div class="modal-header">
+                <h3 id="jobDeploymentName">
+                    <i class="fas fa-server"></i>
+                    Deployment Details
+                </h3>
+                <button class="modal-close" id="closeJobDetails">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="job-account-info">
+                    <h4><i class="fas fa-user-shield"></i> Account Details</h4>
+                    <div id="jobAccountDetails" class="account-details-grid">
+                        <!-- Account details will be shown here -->
+                    </div>
+                </div>
+                
+                <div class="xp-progress-section">
+                    <h4><i class="fas fa-tachometer-alt"></i> Level Progress</h4>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill">
+                                <div class="liquid-effect"></div>
+                                <div class="progress-glow"></div>
+                            </div>
+                        </div>
+                        <div class="xp-info">
+                            <span class="current-xp" id="currentXP">
+                                <i class="fas fa-bolt"></i>
+                                <span id="currentXPValue">0</span> XP
+                            </span>
+                            <span class="level-indicator">
+                                Level <span id="currentLevel">1</span>
+                                <i class="fas fa-arrow-right"></i>
+                                Level <span id="nextLevel">2</span>
+                            </span>
+                            <span class="next-level-xp" id="nextLevelXP">
+                                <span id="nextLevelXPValue">600</span> XP needed
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="deployment-controls">
+                    <div class="control-group">
+                        <label>XP Gain Speed:</label>
+                        <div class="speed-controls">
+                            <button class="speed-btn active" data-speed="slow">Slow</button>
+                            <button class="speed-btn" data-speed="medium">Medium</button>
+                            <button class="speed-btn" data-speed="fast">Fast</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="stopDeploy" class="btn btn-danger">
+                    <i class="fas fa-stop"></i>
+                    Stop Deploy
+                </button>
+                <button id="startDeploy" class="btn btn-success">
+                    <i class="fas fa-play"></i>
+                    Start Deploy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-text">Initializing LevelUp System...</div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
